@@ -6,7 +6,8 @@
 minimal_anticheat = {}
 minimal_anticheat.clip_nodes = {
     ["default:stone"]=1, ["default:cobble"]=1, ["default:stonebrick"]=1, ["default:obsidian"]=1, ["default:obsidianbrick"]=1,
-    ["default:dirt"]=1, ["default:dirt_with_grass"]=1, ["ignore"]=1
+    ["default:dirt"]=1, ["default:dirt_with_grass"]=1,
+    -- ["ignore"]=1,
 }
 minimal_anticheat.sureclip_nodes = {
     ["default:stone_with_coal"]=1, ["default:default:stone_with_iron"]=1, ["default:stone_with_copper"]=1,
@@ -107,6 +108,9 @@ minimal_anticheat.check_cheater_on_air = function ()
 end
 minetest.after(16.0, minimal_anticheat.check_cheater_on_air)
 
+-- Count how many times engine triggered for player
+minimal_anticheat.count_engine = {}
+
 --testing built-in anticheat engine...
 minimal_anticheat.check_cheater_by_engine = function (player, cheat)
     if player:is_player() then
@@ -122,34 +126,37 @@ minimal_anticheat.check_cheater_by_engine = function (player, cheat)
                         damage_groups = {fleshy=4}
                     }, {x=0, y=-1, z=0})
                 minetest.chat_send_all("Player "..name.." suspected in dig cheat");
-                minetest.log("action", "Player "..name.." at "..text_pos.." suspected in dig cheat");
             end
         elseif cheat.type == "interacted_too_far" then
             --it happens to regular players too, so don't be too harsh...
-            if math.random(1, 100) > 80 then
+            if minimal_anticheat.count_engine[name] ~= nil and (minimal_anticheat.count_engine[name]) % 10 == 0 then
                 if player:get_hp() > 0 then
                     player:punch(player, 1.0,  {
                             full_punch_interval=1.0,
                             damage_groups = {fleshy=4}
                         }, {x=0, y=-1, z=0})
-                    minetest.chat_send_all("Player "..name.." suspected in too far cheat (maybe)");
-                    minetest.log("action", "Player "..name.." at "..text_pos.." suspected in too far cheat");
+                    minetest.chat_send_all("Player "..name.." suspected in too far cheat (maybe) "..minimal_anticheat.count_engine[name]);
                 end
             end
         elseif cheat.type == "moved_too_fast" then
             --it happens to regular players too, so don't be too harsh...
-            if math.random(1, 100) > 90 then
+            if minimal_anticheat.count_engine[name] ~= nil and (minimal_anticheat.count_engine[name]) % 10 == 0 then
                 if player:get_hp() > 0 then
                     player:punch(player, 1.0,  {
                             full_punch_interval=1.0,
                             damage_groups = {fleshy=4}
                         }, {x=0, y=-1, z=0})
-                    minetest.chat_send_all("Player "..name.." suspected in too fast cheat (maybe)");
-                    minetest.log("action", "Player "..name.." at "..text_pos.." suspected in too fast cheat");
+                    minetest.chat_send_all("Player "..name.." suspected in too fast cheat (maybe) "..minimal_anticheat.count_engine[name]);
                 end
             end
         elseif 1 then
           --nothing
+        end
+
+        if minimal_anticheat.count_engine[name] == nil then
+            minimal_anticheat.count_engine[name] = 1
+        else
+            minimal_anticheat.count_engine[name] = minimal_anticheat.count_engine[name] + 1
         end
     end
 end
