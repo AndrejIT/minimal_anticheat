@@ -30,7 +30,7 @@ end
 minimal_anticheat.check_cheater_on_coal = function ()
 	for _,player in pairs(minetest.get_connected_players()) do
 		if math.random(1, 100) > 50 and player and player:is_player() then
-			local pos1 = player:getpos()
+			local pos1 = player:get_pos()
             local pos2 = {x=pos1.x, y=pos1.y+1, z=pos1.z}
 			if player:get_hp() > 0 and pos1.y < -50 then	--check noclip miners
 				local n1 = minetest.get_node(pos1)
@@ -61,7 +61,7 @@ end
 minimal_anticheat.check_cheater_in_wall = function ()
 	for _,player in pairs(minetest.get_connected_players()) do
 		if math.random(1, 100) > 50 and player and player:is_player() then
-			local pos1 = player:getpos()
+			local pos1 = player:get_pos()
             local pos2 = {x=pos1.x, y=pos1.y+1, z=pos1.z}
 			if player:get_hp() > 0 then	--check noclip cheaters
 				local n1 = minetest.get_node(pos1)
@@ -86,7 +86,7 @@ minetest.after(8.0, minimal_anticheat.check_cheater_in_wall)
 minimal_anticheat.check_cheater_on_air = function ()
 	for _,player in pairs(minetest.get_connected_players()) do
 		if math.random(1, 100) > 50 and player and player:is_player() then
-			local pos = player:getpos()
+			local pos = player:get_pos()
 			if player:get_hp() > 0 and pos.y > 10 then	--check on air
 				local positions = minetest.find_nodes_in_area(
 						{x=pos.x-3, y=pos.y-3, z=pos.z-3},
@@ -115,7 +115,7 @@ minimal_anticheat.count_engine = {}
 minimal_anticheat.check_cheater_by_engine = function (player, cheat)
     if player:is_player() then
         local name = player:get_player_name()
-        local pos = player:getpos()
+        local pos = player:get_pos()
         local text_pos = minetest.pos_to_string(vector.round(pos))
         minetest.log("action", "Player "..name.." at "..text_pos.." suspected in some cheat: "..cheat.type);
         if cheat.type == "dug_too_fast" then
