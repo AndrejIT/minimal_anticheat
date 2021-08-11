@@ -66,8 +66,14 @@ minimal_anticheat.check_cheater_in_wall = function ()
 				local n1 = minetest.get_node(pos1)
                 local n2 = minetest.get_node(pos2)
 				if minimal_anticheat.clip_nodes[n1.name] == 1 and minimal_anticheat.clip_nodes[n2.name] == 1 then
-                    --after some delay check again, may-be that was just lag while digging
-					minetest.after(4.0, minimal_anticheat.secondary_check_cheater_in_wall, player, pos2)
+                    local info = minetest.get_player_information(player:get_player_name())
+                    if info['connection_uptime'] > 16 then
+                        --after some delay check again, may-be that was just lag while digging
+    					minetest.after(4.0, minimal_anticheat.secondary_check_cheater_in_wall, player, pos2)
+                    else
+                        --maybe somebody just built where player was located before
+                        player:setpos({x=0, y=3, z=0})
+                    end
 				end
 			end
 		end
