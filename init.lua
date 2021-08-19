@@ -27,6 +27,7 @@ minimal_anticheat.secondary_check_cheater_on_coal = function(player, pos)
         minetest.log("action", "Player "..name.." at "..minetest.pos_to_string(vector.round(pos)).." suspected in noclip cheat - oncoal");
     end
 end
+
 minimal_anticheat.check_cheater_on_coal = function ()
 	for _,player in pairs(minetest.get_connected_players()) do
 		if math.random(1, 100) > 50 and player and player:is_player() then
@@ -58,6 +59,7 @@ minimal_anticheat.secondary_check_cheater_in_wall = function(player, pos)
         minetest.log("action", "Player "..name.." at "..minetest.pos_to_string(vector.round(pos)).." suspected in noclip cheat - inwall");
     end
 end
+
 minimal_anticheat.check_cheater_in_wall = function ()
 	for _,player in pairs(minetest.get_connected_players()) do
 		if math.random(1, 100) > 50 and player and player:is_player() then
@@ -73,7 +75,7 @@ minimal_anticheat.check_cheater_in_wall = function ()
     					minetest.after(4.0, minimal_anticheat.secondary_check_cheater_in_wall, player, pos2)
                     else
                         --maybe somebody just built where player was located before
-                        player:setpos({x=0, y=3, z=0})
+                        player:set_pos({x=0, y=3, z=0})
                     end
 				end
 			end
@@ -147,6 +149,32 @@ minimal_anticheat.check_cheater_by_engine = function (player, cheat)
                             damage_groups = {fleshy=4}
                         }, {x=0, y=-1, z=0})
                     minetest.chat_send_all("Player "..name.." suspected in too fast cheat (maybe) "..minimal_anticheat.count_engine[name]);
+                end
+            end
+        elseif cheat.type == "dug_unbreakable" then
+            --it happens to regular players too?
+            if minimal_anticheat.count_engine[name] ~= nil and (minimal_anticheat.count_engine[name]) % 10 == 0 then
+                if player:get_hp() > 0 then
+                    player:punch(player, 1.0,  {
+                            full_punch_interval=1.0,
+                            damage_groups = {fleshy=4}
+                        }, {x=0, y=-1, z=0})
+                    minetest.chat_send_all("Player "..name.." suspected in dug unbreakable cheat (maybe) "..minimal_anticheat.count_engine[name]);
+                end
+            end
+        elseif cheat.type == "interacted_while_dead" then
+            --it happens to regular players too?
+            if minimal_anticheat.count_engine[name] ~= nil and (minimal_anticheat.count_engine[name]) % 10 == 0 then
+                if player:is_player() then
+                    -- no point to punching dead, so kick him.
+                    minetest.after(math.random(0,30)/10, function(name)
+                        local player = minetest.get_player_by_name(name)
+                        if player == nil then
+                            minetest.log("warning", "Dead cheater is not present for kick")
+                        end
+                        minetest.kick_player(name, "Player "..name.." suspected in dead cheat (maybe)")
+                    end)
+                    minetest.chat_send_all("Player "..name.." suspected in dead cheat (maybe) "..minimal_anticheat.count_engine[name]);
                 end
             end
         elseif 1 then
