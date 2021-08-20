@@ -173,7 +173,7 @@ minimal_anticheat.check_cheater_by_engine = function (player, cheat)
                             minetest.log("warning", "Dead cheater is not present for kick")
                         end
                         minetest.kick_player(name, "Player "..name.." suspected in dead cheat (maybe)")
-                    end)
+                    end, name)
                     minetest.chat_send_all("Player "..name.." suspected in dead cheat (maybe) "..minimal_anticheat.count_engine[name]);
                 end
             end
