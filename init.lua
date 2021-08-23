@@ -55,8 +55,36 @@ minimal_anticheat.secondary_check_cheater_in_wall = function(player, pos)
                 damage_groups = {fleshy=10}
             }, {x=0, y=1, z=0})
         local name = player:get_player_name()
-        minetest.chat_send_all("Player "..name.." suspected in noclip cheat");
-        minetest.log("action", "Player "..name.." at "..minetest.pos_to_string(vector.round(pos)).." suspected in noclip cheat - inwall");
+
+        local is near_teleport_or_spawn = false
+        if _G["teleports"] and teleports.teleports then
+            for i, EachTeleport in ipairs(teleports.teleports) do
+                if vector.distance(EachTeleport.pos, pos) < 5 then
+                    near_teleport_or_spawn = true
+                end
+            end
+        end
+
+        local is_near_block_mover = false
+        -- for now only support "electricity" mod piston.
+        local positions = minetest.find_nodes_in_area(
+            {x=pos.x-2, y=pos.y-2, z=pos.z-2},
+            {x=pos.x+2, y=pos.y+2, z=pos.z+2},
+            {"electricity:piston_pusher_sticky"})
+        if #positions > 0 then
+            is_near_block_mover = true
+        end
+
+        if is_near_block_mover then
+            minetest.chat_send_all("Player "..name.." is crushed");
+            minetest.log("action", "Player "..name.." at "..minetest.pos_to_string(vector.round(pos)).." not suspected in noclip cheat - inwall");
+        elseif near_teleport_or_spawn then
+            minetest.chat_send_all("Player "..name.." had teleportation accident");
+            minetest.log("action", "Player "..name.." at "..minetest.pos_to_string(vector.round(pos)).." not suspected in noclip cheat - inwall");
+        else
+            minetest.chat_send_all("Player "..name.." suspected in noclip cheat");
+            minetest.log("action", "Player "..name.." at "..minetest.pos_to_string(vector.round(pos)).." suspected in noclip cheat - inwall");
+        end
     end
 end
 
@@ -100,8 +128,24 @@ minimal_anticheat.check_cheater_on_air = function ()
 							damage_groups = {fleshy=18}
 						}, {x=0, y=-1, z=0})
                     local name = player:get_player_name()
-                    minetest.chat_send_all("Player "..name.." suspected in fly cheat");
-                    minetest.log("action", "Player "..name.." at "..minetest.pos_to_string(vector.round(pos)).." suspected in fly cheat");
+
+                    -- area may be just legitimately not loaded yet
+                    local is near_teleport_or_spawn = false
+                    if _G["teleports"] and teleports.teleports then
+                        for i, EachTeleport in ipairs(teleports.teleports) do
+                            if vector.distance(EachTeleport.pos, pos) < 3 then
+                                near_teleport_or_spawn = true
+                            end
+                        end
+                    end
+
+                    if near_teleport_or_spawn then
+                        minetest.chat_send_all("Player "..name.." had teleportation accident");
+                        minetest.log("action", "Player "..name.." at "..minetest.pos_to_string(vector.round(pos)).." not suspected in fly cheat");
+                    else
+                        minetest.chat_send_all("Player "..name.." suspected in fly cheat");
+                        minetest.log("action", "Player "..name.." at "..minetest.pos_to_string(vector.round(pos)).." suspected in fly cheat");
+                    end
 				end
 			end
 		end
