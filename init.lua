@@ -139,6 +139,16 @@ minimal_anticheat.check_cheater_on_air = function ()
                         end
                     end
 
+                    if vector.distance({x=0, y=0, z=0}, pos) < 3 then
+                        near_teleport_or_spawn = true
+                    end
+
+                    if _G["beds"] and beds.spawn and beds.spawn[name] ~= nil then
+                        if vector.distance(beds.spawn[name], pos) < 3 then
+                            near_teleport_or_spawn = true
+                        end
+                    end
+
                     if near_teleport_or_spawn then
                         minetest.chat_send_all("Player "..name.." had teleportation accident");
                         minetest.log("action", "Player "..name.." at "..minetest.pos_to_string(vector.round(pos)).." not suspected in fly cheat");
